@@ -2,47 +2,60 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employee;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Fetch all employees
     public function index()
     {
-        //
+        return Employee::all();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Create a new employee
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:employees,email',
+            'position' => 'required|string|max:255',
+            'salary' => 'required|numeric',
+        ]);
+
+        $employee = Employee::create($request->all());
+
+        return response()->json($employee, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Display a specific employee
+    public function show($id)
     {
-        //
+        return Employee::findOrFail($id);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Update an employee
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:employees,email,' . $id,
+            'position' => 'required|string|max:255',
+            'salary' => 'required|numeric',
+        ]);
+
+        $employee = Employee::findOrFail($id);
+        $employee->update($request->all());
+
+        return response()->json($employee, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    // Delete an employee
+    public function destroy($id)
     {
-        //
+        $employee = Employee::findOrFail($id);
+        $employee->delete();
+
+        return response()->json(null, 204);
     }
 }
